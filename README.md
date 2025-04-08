@@ -9,6 +9,7 @@ A web application for analyzing historical temperature data and predicting futur
 - [Installation](#installation)
 - [Usage](#usage)
 - [Deployment](#deployment)
+  - [Docker Deployment](#docker-deployment)
 - [Project Structure](#project-structure)
 - [Models](#models)
   - [Machine Learning Architecture](#machine-learning-architecture)
@@ -302,6 +303,60 @@ For each forecast, the application generates:
   - Model parameter uncertainty
   - Random variation in future values
   - Seasonal effects
+
+## Deployment
+
+### Docker Deployment
+
+For maximum portability and easy deployment on any system, this application can be containerized using Docker.
+
+#### Prerequisites
+- Docker
+- Docker Compose (optional, for easier management)
+
+#### Using Docker
+
+1. Build the Docker image:
+```bash
+docker build -t temperature-forecasting .
+```
+
+2. Run the container:
+```bash
+docker run -p 8000:8000 -v $(pwd)/data:/app/data temperature-forecasting
+```
+
+3. Access the application at `http://localhost:8000`
+
+#### Using Docker Compose
+
+1. Start the application:
+```bash
+docker-compose up -d
+```
+
+2. View logs:
+```bash
+docker-compose logs -f
+```
+
+3. Stop the application:
+```bash
+docker-compose down
+```
+
+#### Docker Configuration
+
+The provided Docker configuration includes:
+
+- Base image: Python 3.9 slim
+- Exposed port: 8000
+- Non-root user for security
+- Volume mapping for data directory
+- Automatic restart policy
+- 4 Gunicorn worker processes
+
+This containerized approach ensures the application runs consistently across different environments without dependency issues.
 
 ## Contributing
 
