@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Forecasting</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Temperature Forecasting</h1>
+        <p>Welcome to the Temperature Forecasting application. Use the form below to input your data and get temperature forecasts.</p>
+    </header>
+    
+    <main>
+        <form action="/analyze" method="POST">
+            <label for="country">Select Country:</label>
+            <select id="country" name="country" required>
+                <option value="">-- Select a Country --</option>
+                {% for country in countries %}
+                <option value="{{ country }}">{{ country }}</option>
+                {% endfor %}
+            </select>
+            
+            <div class="form-group">
+                <label for="model_type">Forecasting Model:</label>
+                <select class="form-control" id="model_type" name="model_type">
+                    <option value="linear">Linear Regression</option>
+                    <option value="arima">ARIMA</option>
+                    <option value="exp_smoothing">Exponential Smoothing</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="forecast_years">Forecast Years:</label>
+                <input type="number" class="form-control" id="forecast_years" name="forecast_years" value="10" min="1" max="50">
+            </div>
+            
+            <button type="submit">Get Forecast</button>
+        </form>
+    </main>
+    
+    <footer>
+        <p>&copy; 2023 Temperature Forecasting Project. All rights reserved.</p>
+    </footer>
+</body>
+</html>

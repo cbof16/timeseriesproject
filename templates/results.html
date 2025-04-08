@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Temperature Forecasting Results</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Temperature Forecasting Results</h1>
+        <p>Country: <strong>{{ country }}</strong></p>
+        <p>Forecasted Temperature: <strong>{{ forecasted_temperature }} °C</strong></p>
+        <p>Trend Line Slope: <strong>{{ trend_slope }} °C/year</strong></p>
+        
+        <h2>Historical Temperature Data</h2>
+        <img src="{{ url_for('static', filename='images/temperature_trends_' + country + '.png') }}" alt="Temperature Trends" />
+
+        <h2>Forecasting Model Details</h2>
+        <p>{{ model_details }}</p>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h4>Model Performance Metrics</h4>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h5>RMSE</h5>
+                                <p>{{ metrics.RMSE }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h5>MAE</h5>
+                                <p>{{ metrics.MAE }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h5>MSE</h5>
+                                <p>{{ metrics.MSE }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <form action="/download_forecast" method="post">
+            <input type="hidden" name="country" value="{{ country }}">
+            <input type="hidden" name="forecast_data" value="{{ forecast|tojson }}">
+            <button type="submit" class="btn btn-success">Download Forecast</button>
+        </form>
+
+        <a href="{{ url_for('index') }}">Go Back</a>
+    </div>
+</body>
+</html>
