@@ -23,20 +23,27 @@
             </select>
             
             <div class="form-group">
-                <label for="model_type">Forecasting Model:</label>
-                <select class="form-control" id="model_type" name="model_type">
-                    <option value="linear">Linear Regression</option>
-                    <option value="arima">ARIMA</option>
-                    <option value="exp_smoothing">Exponential Smoothing</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
                 <label for="forecast_years">Forecast Years:</label>
                 <input type="number" class="form-control" id="forecast_years" name="forecast_years" value="10" min="1" max="50">
             </div>
             
-            <button type="submit">Get Forecast</button>
+            <div class="form-group">
+                <label>Forecasting Model:</label>
+                <div class="custom-control custom-radio">
+                    <input type="radio" id="model_linear" name="model_type" value="linear" class="custom-control-input" checked>
+                    <label class="custom-control-label" for="model_linear">Linear Regression</label>
+                </div>
+                <div class="custom-control custom-radio">
+                    <input type="radio" id="model_arima" name="model_type" value="arima" class="custom-control-input">
+                    <label class="custom-control-label" for="model_arima">ARIMA</label>
+                </div>
+                <div class="custom-control custom-radio">
+                    <input type="radio" id="model_exp" name="model_type" value="exponential" class="custom-control-input">
+                    <label class="custom-control-label" for="model_exp">Exponential Smoothing</label>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Get Forecast</button>
         </form>
     </main>
     

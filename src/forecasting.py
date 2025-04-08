@@ -50,15 +50,15 @@ def filter_country_data(data, country):
 
 def predict_future_temperatures(country_data, years=10, model_type='linear'):
     """
-    Predict future temperatures based on historical data
+    Predict future temperatures based on historical data using different models.
     
     Args:
         country_data: DataFrame with country-specific data
         years: Number of years to forecast
-        model_type: Type of forecasting model ('linear', 'arima', or 'exp_smoothing')
+        model_type: Type of forecasting model ('linear', 'arima', or 'exponential')
         
     Returns:
-        DataFrame with forecasted temperatures and model evaluation metrics
+        Tuple of (DataFrame with forecasted temperatures, metrics dictionary)
     """
     # Get yearly averages
     yearly_avg_temp = country_data['AverageTemperature'].resample('Y').mean().dropna()
@@ -67,50 +67,46 @@ def predict_future_temperatures(country_data, years=10, model_type='linear'):
     last_date = yearly_avg_temp.index[-1]
     future_dates = pd.date_range(start=last_date, periods=years+1, freq='Y')[1:]
     
+    # Metrics dictionary
+    metrics = {}
+    
     if model_type == 'linear':
-        # Prepare data for modeling
+        # Linear regression model
         X = np.arange(len(yearly_avg_temp)).reshape(-1, 1)
         y = yearly_avg_temp.values
         
-        # Simple linear regression
         model = LinearRegression()
         model.fit(X, y)
         
         # Generate future X values
         future_X = np.arange(len(yearly_avg_temp), len(yearly_avg_temp) + years).reshape(-1, 1)
-        
-        # Predict
         predictions = model.predict(future_X)
         
-        # Evaluate model on training data
+        # Evaluate model
         train_predictions = model.predict(X)
         metrics = calculate_metrics(y, train_predictions)
-        
+    
     elif model_type == 'arima':
-        # Fit ARIMA model
-        model = ARIMA(yearly_avg_temp.values, order=(1,1,1))
+        # ARIMA model
+        model = ARIMA(yearly_avg_temp.values, order=(1, 1, 1))
         model_fit = model.fit()
         
         # Forecast
         predictions = model_fit.forecast(steps=years)
         
-        # Evaluate model on training data
+        # Evaluate model
         train_predictions = model_fit.predict(start=1, end=len(yearly_avg_temp)-1)
         metrics = calculate_metrics(yearly_avg_temp.values[1:], train_predictions)
     
-    elif model_type == 'exp_smoothing':
-        # Holt-Winters Exponential Smoothing
-        model = ExponentialSmoothing(
-            yearly_avg_temp.values,
-            trend='add',  # additive trend
-            seasonal=None  # no seasonality since we're using yearly data
-        )
+    elif model_type == 'exponential':
+        # Exponential Smoothing model
+        model = ExponentialSmoothing(yearly_avg_temp.values, trend='add', seasonal=None)
         model_fit = model.fit()
         
         # Forecast
         predictions = model_fit.forecast(years)
         
-        # Evaluate model on training data
+        # Evaluate model
         train_predictions = model_fit.fittedvalues
         metrics = calculate_metrics(yearly_avg_temp.values, train_predictions)
     

@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, send_file
 import os
 import io
+import json
 import base64
 import matplotlib
 matplotlib.use('Agg')
@@ -29,41 +30,44 @@ def create_app():
     
     @app.route('/analyze', methods=['POST'])
     def analyze():
-        country = request.form.get('country')
-        forecast_years = int(request.form.get('forecast_years', 10))
-        model_type = request.form.get('model_type', 'linear')
-        
-        # Get country data
-        country_data = get_country_data(data, country)
-        
-        # Generate visualization
-        fig = plot_temperature_trends(country_data, country)
-        
-        # Save plot to memory
-        buf = io.BytesIO()
-        fig.savefig(buf, format='png', dpi=100)
-        buf.seek(0)
-        plot_data = base64.b64encode(buf.getbuffer()).decode('ascii')
-        plt.close(fig)
-        
-        # Generate forecast
-        forecast_df, metrics = predict_future_temperatures(country_data, years=forecast_years, model_type=model_type)
-        
-        # Prepare forecast data for display
-        historical = forecast_df[forecast_df['Type'] == 'Historical'].tail(10)
-        forecast = forecast_df[forecast_df['Type'] == 'Forecast']
-        
-        # Format dates for display
-        historical['Year'] = historical['Date'].dt.year
-        forecast['Year'] = forecast['Date'].dt.year
-        
-        return render_template('results.html', 
-                             country=country,
-                             plot_data=plot_data,
-                             historical=historical.to_dict('records'),
-                             forecast=forecast.to_dict('records'),
-                             metrics=metrics,
-                             model_type=model_type)
+        try:
+            country = request.form.get('country')
+            forecast_years = int(request.form.get('forecast_years', 10))
+            model_type = request.form.get('model_type', 'linear')
+            
+            # Get country data
+            country_data = get_country_data(data, country)
+            
+            # Generate visualization
+            fig = plot_temperature_trends(country_data, country)
+            
+            # Save plot to memory
+            buf = io.BytesIO()
+            fig.savefig(buf, format='png', dpi=100)
+            buf.seek(0)
+            plot_data = base64.b64encode(buf.getbuffer()).decode('ascii')
+            plt.close(fig)
+            
+            # Generate forecast
+            forecast_df, metrics = predict_future_temperatures(country_data, years=forecast_years, model_type=model_type)
+            
+            # Prepare forecast data for display
+            historical = forecast_df[forecast_df['Type'] == 'Historical'].tail(10)
+            forecast = forecast_df[forecast_df['Type'] == 'Forecast']
+            
+            # Format dates for display
+            historical['Year'] = historical['Date'].dt.year
+            forecast['Year'] = forecast['Date'].dt.year
+            
+            return render_template('results.html', 
+                                country=country,
+                                plot_data=plot_data,
+                                historical=historical.to_dict('records'),
+                                forecast=forecast.to_dict('records'),
+                                metrics=metrics,
+                                model_type=model_type)
+        except Exception as e:
+            return render_template('error.html', error=str(e))
     
     @app.route('/download_forecast', methods=['POST'])
     def download_forecast():

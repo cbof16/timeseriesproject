@@ -12,6 +12,7 @@ def load_data(file_path):
     """
     data = pd.read_csv(file_path)
     data['dt'] = pd.to_datetime(data['dt'])
+    data.set_index('dt', inplace=True)  # Set datetime as index during loading
     return data
 
 def preprocess_data(data, country):
@@ -69,7 +70,11 @@ def get_country_data(data, country):
     country_data = data[data['Country'] == country].copy()
     if country_data.empty:
         raise ValueError(f"No data found for country: {country}")
+    
+    # Country data already has dt as index due to load_data
+    # Interpolate missing temperature values
     country_data['AverageTemperature'] = country_data['AverageTemperature'].interpolate(method='time')
+    
     return country_data
 
 def get_available_countries(data):

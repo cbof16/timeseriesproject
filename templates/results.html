@@ -3,52 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ country }} - Temperature Analysis</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>Temperature Forecasting Results</title>
 </head>
 <body>
     <div class="container">
         <h1>Temperature Forecasting Results</h1>
         <p>Country: <strong>{{ country }}</strong></p>
-        <p>Forecasted Temperature: <strong>{{ forecasted_temperature }} °C</strong></p>
-        <p>Trend Line Slope: <strong>{{ trend_slope }} °C/year</strong></p>
+        
+        <div class="text-center mb-4">
+            {% if plot_data %}
+                <img src="data:image/png;base64,{{ plot_data }}" alt="Temperature Trends" class="img-fluid">
+            {% else %}
+                <div class="alert alert-warning">Could not generate temperature trend visualization.</div>
+            {% endif %}
+        </div>
+        
+        <h2>Forecasting Model Details</h2>
+        <p><strong>Model Type:</strong> {{ model_type|capitalize }}</p>
+        
+        {% if metrics %}
+        <h3>Model Performance Metrics</h3>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, value in metrics.items() %}
+                <tr>
+                    <td>{{ key|upper }}</td>
+                    <td>{{ "%.4f"|format(value) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
         
         <h2>Historical Temperature Data</h2>
-        <img src="{{ url_for('static', filename='images/temperature_trends_' + country + '.png') }}" alt="Temperature Trends" />
-
-        <h2>Forecasting Model Details</h2>
-        <p>{{ model_details }}</p>
-
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <h4>Model Performance Metrics</h4>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <h5>RMSE</h5>
-                                <p>{{ metrics.RMSE }}</p>
-                            </div>
-                            <div class="col-md-4">
-                                <h5>MAE</h5>
-                                <p>{{ metrics.MAE }}</p>
-                            </div>
-                            <div class="col-md-4">
-                                <h5>MSE</h5>
-                                <p>{{ metrics.MSE }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Temperature (°C)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in historical %}
+                <tr>
+                    <td>{{ record.Year }}</td>
+                    <td>{{ "%.2f"|format(record.Temperature) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <h2>Forecasted Data</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Temperature (°C)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in forecast %}
+                <tr>
+                    <td>{{ record.Year }}</td>
+                    <td>{{ "%.2f"|format(record.Temperature) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
         <form action="/download_forecast" method="post">
             <input type="hidden" name="country" value="{{ country }}">
             <input type="hidden" name="forecast_data" value="{{ forecast|tojson }}">
-            <button type="submit" class="btn btn-success">Download Forecast</button>
+            <button type="submit" class="btn btn-success">Download Forecast CSV</button>
         </form>
 
-        <a href="{{ url_for('index') }}">Go Back</a>
+        <a href="{{ url_for('index') }}" class="btn btn-primary mt-3">Go Back</a>
     </div>
 </body>
 </html>
